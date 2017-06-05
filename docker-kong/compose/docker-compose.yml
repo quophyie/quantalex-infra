@@ -3,6 +3,9 @@
 ##################################################################
 
 version: '2'
+networks:
+  container_services_networks:
+    driver: bridge
 services:
   # Load Balancing
   consul:
@@ -21,6 +24,8 @@ services:
       - 8500
     dns:
       - 127.0.0.1
+    networks:
+      - container_services_networks
   nginx-lb:
     build: nginx/
     mem_limit: 128m
@@ -39,6 +44,8 @@ services:
         /bin/containerpilot
         -config file:///etc/containerpilot/containerpilot.json
         nginx -g "daemon off;"
+    networks:
+      - container_services_networks
 
   # Kong Database
 
@@ -52,7 +59,9 @@ services:
     expose:
       - 5432
     volumes:
-      - /private/var/docker/postgresql/kong:/var/lib/postgresql
+      - /private/var/docker/postgresql/kong:/var/lib/postgresql/data
+    networks:
+      - container_services_networks
 
   #kong-database:
   #  image: cassandra:2.2
@@ -78,5 +87,8 @@ services:
       #- KONG_DATABASE=cassandra
       - KONG_DATABASE=postgres
       - KONG_PG_HOST=kong-database
-    volumes:
-      - /private/var/docker/postgresql/kong:/var/lib/postgresql
+    #volumes:
+    #  - /private/var/docker/nginx/kong:/var/lib/postgresql
+    networks:
+      - container_services_networks
+
