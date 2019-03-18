@@ -3,7 +3,20 @@
 # This runs docker images (zookeeper and Kafka)
 
 # DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/../docker
-DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/compose
+# DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/compose
+# QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/../../
+# declare -a QUANTAL_MS_DOCKER_COMPOSE_DIRS=("${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantalex-users"
+#                "${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantal-auth"
+#                "${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantal-telephones-service"
+#                "${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantal-email-service"
+#                )
+
+# *** NOTE ****
+# DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
+# QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
+# QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
+
+source ./shared_variables.sh
 
 if [ "${ON_JENKINS}" ]; then
    export PATH=$PATH:$1/bin
@@ -45,4 +58,5 @@ else
    echo "Running on local $COMMAND"
    eval $COMMAND
 fi
+
 
