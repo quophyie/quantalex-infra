@@ -1,45 +1,52 @@
 #!/bin/sh
-# This script will stop all containers and WILL NOT REMOVE images associated with the
+# This script will stop all containers and will remove images associated with the
 # microservice containers i.e. quantal* containers
 
 # *** NOTE ****
 # DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
-
 source shared_variables.sh
+
 
     ## now loop through the above array
     for MS_DOCKER_COMPOSE_DIR in "${QUANTAL_MS_DOCKER_COMPOSE_DIRS[@]}"
     do
        echo "IN $MS_DOCKER_COMPOSE_DIR"
-       #COMMAND="docker-compose -f ${MS_DOCKER_COMPOSE_DIR}/build_docker_container.sh"
        COMMAND="docker-compose -f ${MS_DOCKER_COMPOSE_DIR}/docker/compose/docker-compose.yml stop"
 
        # Get the container ids
        CONTAINER_IDS=(`docker-compose -f ${MS_DOCKER_COMPOSE_DIR}/docker/compose/docker-compose.yml ps -q`)
-       CONTAINERS_TO_STOP=""
+
        for CONTAINER_ID in "${CONTAINER_IDS[@]}"
         do
 
             # Get the container name from container id
             CONTAINER_NAME=`docker ps --filter "id=${CONTAINER_ID}" --format "{{.Names}}"`
-            CONTAINERS_TO_STOP=$(echo "${CONTAINERS_TO_STOP} ${CONTAINER_NAME},")
+
+            # Get the image id
+            CONTAINER_IMAGE_ID=`docker ps --filter "name=${CONTAINER_NAME}" --format "{{.Image}}"`
+            echo "Removing container with Name: ${CONTAINER_NAME} and CONTAINER_ID: ${CONTAINER_ID}"
+            #docker stop ${CONTAINER_ID}
+            #docker rm -f ${CONTAINER_NAME}
+
+            if [ -z "${CONTAINER_ID}" ];then
+               echo "No Container Id"
+            else
+                echo "Removing container with Id ${CONTAINER_ID}"
+                docker stop ${CONTAINER_ID}
+
+                # Remove the image
+                docker rmi -f ${CONTAINER_IMAGE_ID}
+                #echo "Stopped container with Id ${CONTAINER_ID}"
+                echo "Stopped and removed Container named: ${CONTAINER_NAME} with Id ${CONTAINER_ID}"
+            fi
 
         done
-        echo "Stopping container(s) named: ${CONTAINERS_TO_STOP}"
-
-        COMMAND="docker-compose -f ${MS_DOCKER_COMPOSE_DIR}/docker/compose/docker-compose.yml down"
-        echo "\n Running command $COMMAND\n"
-        eval ${COMMAND}
-
 
        eval "cd ${DOCKER_COMPOSE_SCRIPTS_ROOT}"
     done
 
-
-# Stop shared non microservice containers
 COMMAND="docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml down"
 echo "\nRunning command $COMMAND\n"
 eval ${COMMAND}
-

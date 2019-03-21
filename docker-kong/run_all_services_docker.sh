@@ -1,28 +1,11 @@
 #!/bin/sh
 
-# This runs docker images (zookeeper and Kafka)
-
-# DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/../docker
-#DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/compose
-#QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/../../
-#declare -a QUANTAL_MS_DOCKER_COMPOSE_DIRS=("${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantalex-users"
-#                "${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantal-auth"
-#                "${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantal-telephones-service"
-#                "${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantal-email-service"
-#                )
+# This build/runs all containers i.e. microservices (i.e. quantal* services) and shared services such as (zookeeper and Kafka
 
 # *** NOTE ****
 # DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
-BUILD_CONTAINER=
-
-if [ -z "$1" ]; then
-    BUILD_CONTAINER=false
-else
-    # Covert input to lower case and trim leading and trailing white spaces
-    BUILD_CONTAINER=$(echo "$1" | tr '[:upper:]' '[:lower:] | xargs')
-fi
 
 source ./shared_variables.sh
 
@@ -66,13 +49,13 @@ fi
 if [ "${ON_JENKINS}" ]; then
    COMMAND="docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml up -d"
    echo "Running on Jenkins $COMMAND"
-   eval $COMMAND
+   eval ${COMMAND}
    echo "Waiting 10 seconds for kafka / zookeeper to start before running acceptance tests on Jenkins"
    sleep 10
 else
    COMMAND="docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml up -d"
    echo "Running on local $COMMAND"
-   eval $COMMAND
+   eval ${COMMAND}
 fi
 
 # Build and Run Microservices
@@ -81,16 +64,32 @@ if [ ${DEPLOY_MS} == 'true' ]; then
     for MS_DOCKER_COMPOSE_DIR in "${QUANTAL_MS_DOCKER_COMPOSE_DIRS[@]}"
     do
        echo "IN $MS_DOCKER_COMPOSE_DIR"
-       #COMMAND="docker-compose -f ${MS_DOCKER_COMPOSE_DIR}/build_docker_container.sh"
-       COMMAND="cd ${MS_DOCKER_COMPOSE_DIR}/scripts && ./build_run_docker_container.sh ${BUILD_CONTAINER} -d"
-       echo "Running on local $COMMAND"
-       eval $COMMAND
-       eval "cd ${DOCKER_COMPOSE_SCRIPTS_ROOT}"
+
+       # Microservice Container name
+       MS_NAME=$(echo ${MS_DOCKER_COMPOSE_DIR} | rev | cut -d'/' -f 1 | rev)
+       MS_DOCKER_LOGS_DIR=${MS_DOCKER_COMPOSE_DIR}/docker/logs
+       INFRA_DOCKER_LOGS_DIR=${DOCKER_COMPOSE_SCRIPTS_ROOT}/logs
+
+       MS_DOCKER_LOGS_FILE=${MS_DOCKER_LOGS_DIR}/${MS_NAME}-logs.txt
+       INFRA_DOCKER_LOGS_FILE=${INFRA_DOCKER_LOGS_DIR}/${MS_NAME}-logs.txt
+       COMMAND="cd ${MS_DOCKER_COMPOSE_DIR}/scripts && ./build_run_docker_microservice_containers.sh ${BUILD_CONTAINER} -d | tee  ${INFRA_DOCKER_LOGS_FILE} ${MS_DOCKER_LOGS_FILE}"
+
+       mkdir -p ${MS_DOCKER_LOGS_DIR}
+       mkdir -p ${INFRA_DOCKER_LOGS_DIR}
+
+       echo "Running ${MS_NAME} on local with command ${COMMAND}"
+       eval ${COMMAND}
+
+       # Bring the logs to the front
+       LOGS_COMMAND="docker-compose -f ${MS_DOCKER_COMPOSE_DIR}/docker/compose/docker-compose.yml logs -f | tee -a ${INFRA_DOCKER_LOGS_FILE} ${MS_DOCKER_LOGS_FILE} &"
+
+       echo "executing logs command: ${LOGS_COMMAND}"
+       eval ${LOGS_COMMAND}
+       cd ${DOCKER_COMPOSE_SCRIPTS_ROOT}
     done
 fi
 
 ##### THIS SHOULD ALWAYS BE THE LAST COMMAND #####
 # BRING SHARED INFRA LOGS TO THE FOREGROUND
-
 docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml logs -f
 
