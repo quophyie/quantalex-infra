@@ -111,7 +111,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - /private/var/docker/postgresql/kong_db:/var/lib/postgresql
+      - /private/var/docker/postgresql/kong_db/data:/var/lib/postgresql/data
     networks:
       - container_services_networks
 
