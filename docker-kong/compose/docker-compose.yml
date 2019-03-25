@@ -110,6 +110,8 @@ services:
     restart: on-failure
     stdin_open: true
     tty: true
+    volumes:
+      - /private/var/docker/postgresql/kong_db:/var/lib/postgresql
     networks:
       - container_services_networks
 

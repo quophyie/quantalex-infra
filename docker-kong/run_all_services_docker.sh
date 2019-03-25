@@ -17,6 +17,17 @@ else
     echo "DEPLOY_MS has been set. ${DEPLOY_MS}"
 fi
 
+#    $2 = BUILD_CONTAINER - a boolean (either true of false) that determines whether the services containers will be
+#                           built before starting
+BUILD_CONTAINER=
+
+if [ -z "$2" ]; then
+    BUILD_CONTAINER=false
+else
+    # Covert input to lower case and trim leading and trailing white spaces
+    BUILD_CONTAINER=$(echo "$2" | tr '[:upper:]' '[:lower:] | xargs')
+fi
+
 if [ "${ON_JENKINS}" ]; then
    export PATH=$PATH:$1/bin
    export HOST_IP=`/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1`
