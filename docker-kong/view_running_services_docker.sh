@@ -4,6 +4,9 @@
 DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/compose
 QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/../../
 
+source ././../../scripts/docker-scripts/common_funcs.sh
+check_and_source_file ~/.bash_profile
+
 # *** NOTE ****
 # DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh

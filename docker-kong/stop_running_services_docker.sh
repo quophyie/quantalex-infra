@@ -2,6 +2,9 @@
 # This script will stop all containers and WILL NOT REMOVE images associated with the
 # microservice containers i.e. quantal* containers
 
+source ././../../scripts/docker-scripts/common_funcs.sh
+check_and_source_file ~/.bash_profile
+
 # *** NOTE ****
 # DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
