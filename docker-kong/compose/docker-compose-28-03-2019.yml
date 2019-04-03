@@ -67,10 +67,7 @@ services:
       - container_services_networks
 
   kong:
-    #image: "${KONG_DOCKER_TAG:-kong:latest}"
-    build:
-      context: ./kong
-      dockerfile: ./Dockerfile
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
     depends_on:
       kong-db:
         condition: service_healthy
@@ -86,7 +83,6 @@ services:
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
-      #KONG_CUSTOM_PLUGINS: middleman
     links:
       - kong-db:kong-db
     ports:

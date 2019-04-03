@@ -105,5 +105,6 @@ fi
 
 ##### THIS SHOULD ALWAYS BE THE LAST COMMAND #####
 # BRING SHARED INFRA LOGS TO THE FOREGROUND
-docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml logs -f
+docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml logs -f | tee -a ${INFRA_DOCKER_LOGS_DIR}/shared-services.log
+
 
