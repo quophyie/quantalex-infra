@@ -97,15 +97,14 @@ function _M.execute(conf)
   until ngx_re_find(line, "^\\s*$", "jo")
 
   -- local content_length = tonumber(headers['content-length'])
-  --  ngx.log(ngx.WARN, "recieved content length " .. content_length)
   -- local body, err = sock:receive(tonumber(headers['content-length']))
   --local body, err = sock:receive(content_length)
-  -- local body, err = sock:receive("*l")
-  --  local body, err = ngx.req.get_body_data()
 
 
     local body = ""
     -- line, err = sock:receive("*a")
+    -- as we are expected chunked data (i.e. Transfer Encoding header)
+    -- we recieve until we reach the chunked data pattern i.e. 0\r\n\r\n
     local reader = sock:receiveuntil("0\r\n\r\n")
 
     -- body = body .. line
