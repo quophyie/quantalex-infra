@@ -39,7 +39,7 @@ function _M.execute(conf)
     return
   end
 
-  local name = "[middleman] "
+  local name = "[jwt-blacklist-check] "
   local ok, err
   local parsed_url = parse_url(conf.url)
   local host = parsed_url.host
@@ -75,7 +75,17 @@ function _M.execute(conf)
 
   if err then 
     ngx.log(ngx.ERR, name .. "failed to read response status from " .. host .. ":" .. tostring(port) .. ": ", err)
-    return
+
+    if (err == 'timeout') then
+        ngx.log(ngx.ERR, name .. "request timeout on " .. conf.url)
+        return kong_response.exit(500, "{\"message\":\"timeout error requesting " .. conf.url .. "\"}", {
+                ["Content-Type"] = "application/json"
+            })
+    end
+
+      return kong_response.exit(500, "{\"message\":\"error requesting " .. conf.url .. "\", \"error\":\"" .. err .. "\"}", {
+              ["Content-Type"] = "application/json"
+             })
   end
 
   local status_code = tonumber(string.match(line, "%s(%d%d%d)%s"))
@@ -83,7 +93,7 @@ function _M.execute(conf)
 
   repeat
     line, err = sock:receive("*l")
-    --ngx.log(ngx.WARN, "JWT blacklist check response line " .. line )
+
     if err then
       ngx.log(ngx.ERR, name .. "failed to read header " .. host .. ":" .. tostring(port) .. ": ", err)
       return
@@ -98,7 +108,7 @@ function _M.execute(conf)
 
   -- local content_length = tonumber(headers['content-length'])
   -- local body, err = sock:receive(tonumber(headers['content-length']))
-  --local body, err = sock:receive(content_length)
+  -- local body, err = sock:receive(content_length)
 
 
     local body = ""
@@ -176,6 +186,7 @@ function _M.execute(conf)
       response_body = string.match(body, "%b{}")
     end
 
+    ngx.log(ngx.ERR, name .. "failure response status code " .. status_code .. ":"  ..  "  response body: " .. response_body, err)
     return kong_response.exit(status_code, response_body)
   end
   ngx.log(ngx.WARN, "blacklist check for supplied JWT at authorization service " .. conf.url .. " completed successfully ... calling next kong plugin" )
