@@ -78,12 +78,12 @@ function _M.execute(conf)
 
     if (err == 'timeout') then
         ngx.log(ngx.ERR, name .. "request timeout on " .. conf.url)
-        return kong_response.exit(500, "{\"message\":\"timeout error requesting " .. conf.url .. "\"}", {
+        return kong_response.exit(500, "{\"message\":\"timeout error requesting upstream resource " .. conf.url .. "\"}", {
                 ["Content-Type"] = "application/json"
             })
     end
 
-      return kong_response.exit(500, "{\"message\":\"error requesting " .. conf.url .. "\", \"error\":\"" .. err .. "\"}", {
+      return kong_response.exit(500, "{\"message\":\"error requesting upstream resource " .. conf.url .. "\", \"error\":\"" .. err .. "\"}", {
               ["Content-Type"] = "application/json"
              })
   end
