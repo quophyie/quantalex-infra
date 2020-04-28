@@ -8,6 +8,8 @@ check_and_source_file ~/.bash_profile
 # *** NOTE ****
 # KONG_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # CONFLUENT_PLATFORM_ALL_IN_ONE_DIR is defined in shared_variables.sh
+# REPOSITORY is defined in shared_variables.sh
+# CONFLUENT_DOCKER_TAG is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
 
@@ -49,7 +51,7 @@ if [ "${ON_JENKINS}" ]; then
    echo "Waiting 10 seconds for kafka / zookeeper to start before running acceptance tests on Jenkins"
    sleep 10
 else
-   COMMAND="docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml up"
+   COMMAND="REPOSITORY=${REPOSITORY} CONFLUENT_DOCKER_TAG=${CONFLUENT_DOCKER_TAG} docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml up"
    echo "Running on local $COMMAND"
    eval ${COMMAND}
 fi

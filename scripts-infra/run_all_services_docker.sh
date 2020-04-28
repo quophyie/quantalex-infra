@@ -10,6 +10,8 @@ check_and_source_file ~/.bash_profile
 # *** NOTE ****
 # KONG_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # CONFLUENT_PLATFORM_ALL_IN_ONE_DIR is defined in shared_variables.sh
+# CONFLUENT_DOCKER_TAG is defined in shared_variables.sh
+# REPOSITORY is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
 
@@ -98,7 +100,7 @@ if [ ${DEPLOY_MS} == 'true' ]; then
        eval ${COMMAND}
 
        # Bring the logs to the front
-       LOGS_COMMAND="docker-compose -f ${MS_DOCKER_COMPOSE_DIR}/docker/compose/docker-compose.yml logs -f | tee -a ${INFRA_DOCKER_LOGS_FILE} ${MS_DOCKER_LOGS_FILE} &"
+       LOGS_COMMAND="REPOSITORY=${REPOSITORY} CONFLUENT_DOCKER_TAG=${CONFLUENT_DOCKER_TAG} docker-compose -f ${MS_DOCKER_COMPOSE_DIR}/docker/compose/docker-compose.yml logs -f | tee -a ${INFRA_DOCKER_LOGS_FILE} ${MS_DOCKER_LOGS_FILE} &"
 
        echo "executing logs command: ${LOGS_COMMAND}"
        eval ${LOGS_COMMAND}
@@ -108,6 +110,6 @@ fi
 
 ##### THIS SHOULD ALWAYS BE THE LAST COMMAND #####
 # BRING SHARED INFRA LOGS TO THE FOREGROUND
-docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml logs -f | tee -a ${INFRA_DOCKER_LOGS_DIR}/shared-services.log
+docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml  logs -f | tee -a ${INFRA_DOCKER_LOGS_DIR}/shared-services.log
 
 
