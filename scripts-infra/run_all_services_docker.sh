@@ -8,7 +8,8 @@ source ./../../scripts/docker-scripts/common_funcs.sh
 check_and_source_file ~/.bash_profile
 
 # *** NOTE ****
-# DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
+# KONG_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
+# CONFLUENT_PLATFORM_ALL_IN_ONE_DIR is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
 
@@ -63,13 +64,13 @@ if [ "$EXISTING_ZOOKEEPER_DOCKER_CONATINER_ID" ]; then
 fi
 
 if [ "${ON_JENKINS}" ]; then
-   COMMAND="docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml up -d"
+   COMMAND="docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml  -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml up -d"
    echo "Running on Jenkins $COMMAND"
    eval ${COMMAND}
    echo "Waiting 10 seconds for kafka / zookeeper to start before running acceptance tests on Jenkins"
    sleep 10
 else
-   COMMAND="docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml up -d"
+   COMMAND="docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml  -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml up -d"
    echo "Running on local $COMMAND"
    eval ${COMMAND}
 fi
@@ -84,7 +85,7 @@ if [ ${DEPLOY_MS} == 'true' ]; then
        # Microservice Container name
        MS_NAME=$(echo ${MS_DOCKER_COMPOSE_DIR} | rev | cut -d'/' -f 1 | rev)
        MS_DOCKER_LOGS_DIR=${MS_DOCKER_COMPOSE_DIR}/docker/logs
-       INFRA_DOCKER_LOGS_DIR=${DOCKER_COMPOSE_SCRIPTS_ROOT}/logs
+       INFRA_DOCKER_LOGS_DIR=${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/logs
 
        MS_DOCKER_LOGS_FILE=${MS_DOCKER_LOGS_DIR}/${MS_NAME}-logs.txt
        INFRA_DOCKER_LOGS_FILE=${INFRA_DOCKER_LOGS_DIR}/${MS_NAME}-logs.txt
@@ -101,12 +102,12 @@ if [ ${DEPLOY_MS} == 'true' ]; then
 
        echo "executing logs command: ${LOGS_COMMAND}"
        eval ${LOGS_COMMAND}
-       cd ${DOCKER_COMPOSE_SCRIPTS_ROOT}
+       cd ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}
     done
 fi
 
 ##### THIS SHOULD ALWAYS BE THE LAST COMMAND #####
 # BRING SHARED INFRA LOGS TO THE FOREGROUND
-docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml logs -f | tee -a ${INFRA_DOCKER_LOGS_DIR}/shared-services.log
+docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml logs -f | tee -a ${INFRA_DOCKER_LOGS_DIR}/shared-services.log
 
 

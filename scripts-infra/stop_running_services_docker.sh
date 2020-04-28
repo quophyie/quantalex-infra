@@ -9,6 +9,7 @@ check_and_source_file ~/.bash_profile
 
 # *** NOTE ****
 # DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
+# CONFLUENT_PLATFORM_ALL_IN_ONE_DIR is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
 
@@ -39,12 +40,12 @@ source shared_variables.sh
         eval ${COMMAND}
 
 
-       eval "cd ${DOCKER_COMPOSE_SCRIPTS_ROOT}"
+       eval "cd ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}"
     done
 
 
 # Stop shared non microservice containers
-COMMAND="docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml down"
+COMMAND="docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml stop"
 echo "\nRunning command $COMMAND\n"
 eval ${COMMAND}
 
