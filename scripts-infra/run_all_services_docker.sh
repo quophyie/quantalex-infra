@@ -2,7 +2,9 @@
 
 # This build/runs all containers i.e. microservices (i.e. quantal* services) and shared services such as (zookeeper and Kafka
 
-source ././../../scripts/docker-scripts/common_funcs.sh
+# Make sure that the scripts repository has been checked out from git
+# i.e. from https://github.com/quophyie/scripts.git
+source ./../../scripts/docker-scripts/common_funcs.sh
 check_and_source_file ~/.bash_profile
 
 # *** NOTE ****
@@ -10,7 +12,7 @@ check_and_source_file ~/.bash_profile
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
 
-source ./shared_variables.sh
+source shared_variables.sh
 
 if [ -z "$DEPLOY_MS" ];then
     echo "DEPLOY_MS has not been set. Setting DEPLOY_MS to default value of true"

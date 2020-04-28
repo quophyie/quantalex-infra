@@ -2,7 +2,7 @@
 
 # This runs docker images for shared services such as (zookeeper and Kafka)
 
-source ././../../scripts/docker-scripts/common_funcs.sh
+source ../../scripts/docker-scripts/common_funcs.sh
 check_and_source_file ~/.bash_profile
 
 # *** NOTE ****
@@ -10,7 +10,7 @@ check_and_source_file ~/.bash_profile
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
 
-source ./shared_variables.sh
+source shared_variables.sh
 
 if [ "${ON_JENKINS}" ]; then
    export PATH=$PATH:$1/bin

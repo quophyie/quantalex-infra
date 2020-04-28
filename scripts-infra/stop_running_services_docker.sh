@@ -2,7 +2,9 @@
 # This script will stop all containers and WILL NOT REMOVE images associated with the
 # microservice containers i.e. quantal* containers
 
-source ././../../scripts/docker-scripts/common_funcs.sh
+# Make sure that the scripts repository has been checked out from git
+# i.e. from https://github.com/quophyie/scripts.git
+source ./../../scripts/docker-scripts/common_funcs.sh
 check_and_source_file ~/.bash_profile
 
 # *** NOTE ****
