@@ -2,15 +2,18 @@
 
 # This runs docker images for shared services such as (zookeeper and Kafka)
 
-source ././../../scripts/docker-scripts/common_funcs.sh
+source ../../scripts/docker-scripts/common_funcs.sh
 check_and_source_file ~/.bash_profile
 
 # *** NOTE ****
-# DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
+# KONG_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
+# CONFLUENT_PLATFORM_ALL_IN_ONE_DIR is defined in shared_variables.sh
+# REPOSITORY is defined in shared_variables.sh
+# CONFLUENT_DOCKER_TAG is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT is defined in shared_variables.sh
 # QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
 
-source ./shared_variables.sh
+source shared_variables.sh
 
 if [ "${ON_JENKINS}" ]; then
    export PATH=$PATH:$1/bin
@@ -42,14 +45,17 @@ if [ "$EXISTING_ZOOKEEPER_DOCKER_CONATINER_ID" ]; then
 fi
 
 if [ "${ON_JENKINS}" ]; then
-   COMMAND="docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml up -d"
+   COMMAND="REPOSITORY=${REPOSITORY} CONFLUENT_DOCKER_TAG=${CONFLUENT_DOCKER_TAG} docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml up -d"
    echo "Running on Jenkins $COMMAND"
    eval ${COMMAND}
    echo "Waiting 10 seconds for kafka / zookeeper to start before running acceptance tests on Jenkins"
    sleep 10
 else
-   COMMAND="docker-compose -f ${DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml up"
+   COMMAND="REPOSITORY=${REPOSITORY} CONFLUENT_DOCKER_TAG=${CONFLUENT_DOCKER_TAG} docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml up -d"
    echo "Running on local $COMMAND"
+   eval ${COMMAND}
+
+   COMMAND="REPOSITORY=${REPOSITORY} CONFLUENT_DOCKER_TAG=${CONFLUENT_DOCKER_TAG} docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml logs -f | tee -a ${INFRA_DOCKER_LOGS_DIR}/shared-services.log"
    eval ${COMMAND}
 fi
 
