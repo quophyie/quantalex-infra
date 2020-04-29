@@ -1,8 +1,8 @@
 #!/bin/sh
 
-KONG_DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/compose
+KONG_DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/../docker-kong/compose
 INFRA_SCRIPTS_ROOT=`pwd`
-CONFLUENT_PLATFORM_ALL_IN_ONE_DIR=`pwf`/../../confluent-platform/cp-all-in-one/cp-all-in-one
+CONFLUENT_PLATFORM_ALL_IN_ONE_DIR=`pwd`/../confluent-platform/cp-all-in-one/cp-all-in-one
 
 echo "sourcing ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/.env"
 source ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/.env
