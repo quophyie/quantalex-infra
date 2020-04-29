@@ -13,10 +13,7 @@ check_and_source_file ~/.bash_profile
 # QUANTAL_MS_DOCKER_COMPOSE_DIRS is defined in shared_variables.sh
 source shared_variables.sh
 
-   COMMAND="docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml ps"
-   echo "\nRunning command $COMMAND\n"
-   eval ${COMMAND}
-
+exec_shared_services_docker_compose_command ps
 
 
 

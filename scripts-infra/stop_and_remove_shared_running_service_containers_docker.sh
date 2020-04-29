@@ -15,6 +15,4 @@ check_and_source_file ~/.bash_profile
 source shared_variables.sh
 
 # Stop and remove shared non microservice containers
-COMMAND="docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml down"
-echo "\nRunning command $COMMAND\n"
-eval ${COMMAND}
+exec_shared_services_docker_compose_command down
