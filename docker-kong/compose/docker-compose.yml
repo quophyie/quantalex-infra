@@ -67,11 +67,12 @@ services:
       KONG_CASSANDRA_CONTACT_POINTS: db
       KONG_DATABASE: postgres
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-      KONG_PG_HOST: db
+      KONG_PG_HOST: kong-db
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+      KONG_PG_PASSWORD: ${KONG_PG_USER:-kong}
     secrets:
     - kong_postgres_password
     networks:
@@ -117,4 +118,4 @@ services:
 
 secrets:
   kong_postgres_password:
-    file: ./POSTGRES_PASSWORD
+    file: /private/var/docker/postgresql/kong_db/POSTGRES_PASSWORD
