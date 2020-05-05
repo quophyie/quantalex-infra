@@ -22,11 +22,14 @@ if [ -z "${INFRA_SCRIPTS_ROOT}" ]; then
     INFRA_SCRIPTS_ROOT="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 fi
 
-KONG_DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/../docker-kong/compose
-CONFLUENT_PLATFORM_ALL_IN_ONE_DIR=`pwd`/../confluent-platform/cp-all-in-one
+KONG_DOCKER_COMPOSE_SCRIPTS_ROOT=${INFRA_SCRIPTS_ROOT}/../docker-kong/compose
+CONFLUENT_PLATFORM_ALL_IN_ONE_DIR=${INFRA_SCRIPTS_ROOT}/../confluent-platform/cp-all-in-one
 
-echo "sourcing ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/.env"
-source ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/.env
+# source the confluent env file
+if [[  -d ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR} ]] && [[ -f "${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/.env" ]]; then
+    echo "sourcing ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/.env"
+    source ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/.env
+fi
 
 SHARED_SERVICES_DOCKER_COMPOSE_COMMAND="docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml"
 
