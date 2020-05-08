@@ -23,7 +23,7 @@ function check_and_exit_if_infra_scripts_root_env_var_not_exist() {
         fi
 
         printf "\nvariable INFRA_SCRIPTS_ROOT not configured\n\n"
-        printf "please run ${setUpScriptDir}/bin/setup to configure INFRA_SCRIPTS_ROOT variable\n"
+        printf "please run ${setUpScriptDir}/bin/setup to configure INFRA_SCRIPTS_ROOT variable\n\n"
         exit  1
 
    fi
