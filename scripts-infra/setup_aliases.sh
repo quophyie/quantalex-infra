@@ -2,35 +2,22 @@
 
 # if INFRA_SCRIPTS_ROOT is empty, set it
 echo "setting up aliases ..."
-if [ -z "${INFRA_SCRIPTS_ROOT}" ]; then
+set -e
 
-#  get the correct absolute full name of the scripts-infra  directory (i.e. the directory containing this script)
-# this makes sure that no matter where this file is sourced from,
-# INFRA_SCRIPTS_ROOT will always be set to the correct absolute directory i.e. the directory containing
-# this file
+# shared quantal infra functions
+INFRA_SHARED_FUNCS_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+INFRA_SHARED_FUNCS="${INFRA_SHARED_FUNCS_DIR}/shared_infra_funcs.sh"
 
-# see https://stackoverflow.com/questions/59895/how-to-get-the-source-directory-of-a-bash-script-from-within-the-script-itself
-# for more info
-    SOURCE="${BASH_SOURCE[0]}"
-    IS_SYM_LNK=false
+# Naive try catch
+{
+ source ${INFRA_SHARED_FUNCS}
+ check_quantal_shared_scripts_dir_exists
+} ||
+{
+ echo "Quantal shared scripts not found!"
+ exit 1
 
-    # if this file has been symlinked the code in the while loop will resolve until
-    # we the actual directory containing this file is reached
-    while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-      IS_SYM_LNK=true
-      DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
-      SOURCE="$(readlink "$SOURCE")"
-      [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-    done
-
-    if [[ ${IS_SYM_LNK} == "true" ]]; then
-        INFRA_SCRIPTS_ROOT="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
-    else
-        INFRA_SCRIPTS_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-    fi
-fi
-
-echo "using INFRA_SCRIPTS_ROOT -> ${INFRA_SCRIPTS_ROOT}"
+}
 
 source ${INFRA_SCRIPTS_ROOT}/shared_variables.sh
 
@@ -59,8 +46,7 @@ function go_to_infra_scripts_dir() {
 # alias run_all_quantal_servicies="go_to_infra_scripts_dir && source ./run_all_services_docker.sh & go_to_orig_dir"
 # Args:
 #     $1 = the name of the alias
-#     $2 = the path to the file contain the alias
-#     $3 = args passed to file that defines the alias
+#     $2 = the path to the file that contains the alias definition
 function create_alias() {
 
   local internalAliasFunctionName=__$1
@@ -91,6 +77,7 @@ function create_alias() {
     alias $1="${func} ${internalAliasFunctionName}"
 }
 
+# Configures the quantal infra aliases
 function configure_aliases() {
     create_alias run_quantal_ms_and_infra '${INFRA_SCRIPTS_ROOT}/run_all_services_docker.sh'
     create_alias run_quantal_infra '${INFRA_SCRIPTS_ROOT}/run_shared_services_docker.sh'
