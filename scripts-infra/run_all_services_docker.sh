@@ -2,9 +2,31 @@
 
 # This build/runs all containers i.e. microservices (i.e. quantal* services) and shared services such as (zookeeper and Kafka
 
+# shared quantal infra functions
+INFRA_SHARED_FUNCS_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+INFRA_SHARED_FUNCS="${INFRA_SHARED_FUNCS_DIR}/shared_infra_funcs.sh"
+
+# *** NOTE ****
+# check_quantal_shared_scripts_dir_exists is defined in shared_infra_funcs.sh
+# check_and_exit_if_infra_scripts_root_env_var_not_exist is defined in shared_infra_funcs.sh
+
+set -e
+# Naive try catch
+{
+ source ${INFRA_SHARED_FUNCS}
+ check_quantal_shared_scripts_dir_exists
+ check_and_exit_if_infra_scripts_root_env_var_not_exist
+} ||
+{
+
+ echo "Quantal shared scripts not found!"
+ exit 1
+
+}
+
 # Make sure that the scripts repository has been checked out from git
 # i.e. from https://github.com/quophyie/scripts.git
-source ./../../scripts/docker-scripts/common_funcs.sh
+source ${INFRA_SCRIPTS_ROOT}/../../scripts/docker-scripts/common_funcs.sh
 check_and_source_file ~/.bash_profile
 
 # *** NOTE ****
