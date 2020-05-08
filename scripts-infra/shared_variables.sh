@@ -1,26 +1,27 @@
 #!/bin/sh
 
-# if INFRA_SCRIPTS_ROOT is empty, set it
-if [ -z "${INFRA_SCRIPTS_ROOT}" ]; then
+# shared quantal infra functions
+INFRA_SHARED_FUNCS_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+INFRA_SHARED_FUNCS="${INFRA_SHARED_FUNCS_DIR}/shared_infra_funcs.sh"
 
-#  get the correct absolute full name of the scripts-infra  directory (i.e. the directory containing this script)
-# this makes sure that no matter where this file is sourced from,
-# INFRA_SCRIPTS_ROOT will always be set to the correct absolute directory i.e. the directory containing
-# this file
+# *** NOTE ****
+# check_quantal_shared_scripts_dir_exists is defined in shared_infra_funcs.sh
+# check_and_exit_if_infra_scripts_root_env_var_not_exist is defined in shared_infra_funcs.sh
+# INFRA_SCRIPTS_ROOT will be set up when bin/setup is run
 
-# see https://stackoverflow.com/questions/59895/how-to-get-the-source-directory-of-a-bash-script-from-within-the-script-itself
-# for more info
-    SOURCE="${BASH_SOURCE[0]}"
+set -e
+# Naive try catch
+{
+ source ${INFRA_SHARED_FUNCS}
+ check_quantal_shared_scripts_dir_exists
+ check_and_exit_if_infra_scripts_root_env_var_not_exist
+} ||
+{
 
-    # if this file has been symlinked the code in the while loop will resolve until
-    # we the actual directory containing this file is reached
-    while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-      DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
-      SOURCE="$(readlink "$SOURCE")"
-      [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-    done
-    INFRA_SCRIPTS_ROOT="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
-fi
+ echo "Quantal shared scripts not found!"
+ exit 1
+
+}
 
 KONG_DOCKER_COMPOSE_SCRIPTS_ROOT=${INFRA_SCRIPTS_ROOT}/../docker-kong/compose
 CONFLUENT_PLATFORM_ALL_IN_ONE_DIR=${INFRA_SCRIPTS_ROOT}/../confluent-platform/cp-all-in-one
@@ -33,7 +34,7 @@ fi
 
 SHARED_SERVICES_DOCKER_COMPOSE_COMMAND="docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml"
 
-QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT=`pwd`/../../
+QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT="${INFRA_SCRIPTS_ROOT}/../../"
 declare -a QUANTAL_MS_DOCKER_COMPOSE_DIRS=("${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantalex-users"
                 "${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantal-auth"
                 "${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantal-telephones-service"
