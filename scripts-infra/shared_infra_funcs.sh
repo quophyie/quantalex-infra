@@ -31,7 +31,7 @@ function check_and_exit_if_infra_scripts_root_env_var_not_exist() {
 }
 
 # configures the INFRA_SCRIPTS_ROOT environment variables
-function config_infra_scripts_dir_env_var() {
+function configure_infra_scripts_dir_env_var() {
 
  echo "configuring variable INFRA_SCRIPTS_ROOT ..."
  if [ -z "${INFRA_SCRIPTS_ROOT}" ]; then
@@ -123,7 +123,7 @@ function update_profile_with_aliases_source() {
       # update profile
     echo "updating profile with command '${source_line_to_add}'"
 
-        if grep -q "${line_to_insert_source_line_after}" "${PROFILE}"; then
+        if grep -q "${line_to_insert_source_line_after}" "${profile}"; then
            # Insert alias sourcing command after the source bash_profile line in ${PROFILE} file
            # Note that this is done in reverse order
             insert_after ${profile} "${line_to_insert_source_line_after}" "${comment}"
@@ -154,16 +154,17 @@ get_profile_file() {
     # Get the shell running the script
     get_shell shell
 
-    if [[ "${shell}" = "zsh" ]]; then
+    if [[ "${SHELL}" = "/bin/zsh" ]]; then
 
         profile=${zshProfile}
 
-    elif [[ "${shell}" = "bash" ]]; then
+    elif [[ "${SHELL}" = "/bin/bash" ]]; then
 
         profile=${bashProfile}
     fi
 
     # this is the value that is returned to the caller of this function
+
     eval $__resultvar="'${profile}'"
 
 }
@@ -195,6 +196,7 @@ function get_shell(){
     fi
 
     # this is the value that is returned to the caller of this function
+
     eval $__resultvar="'${profileShell}'"
 
 }
