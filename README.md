@@ -18,7 +18,27 @@ that are required by the ``Quantal Infrastructure`` project
 $ git clone https://github.com/quophyie/scripts.git .
 ```
 
-3. Clone this project 
+3. Run the setup script of the **``scripts``** project
+
+```bash
+$  cd scripts
+
+$ bin/setup
+
+```
+
+4. source either  **``~/.zshrc``**  or **``~/.bash_profile``** depending on your shell
+
+```bash
+# BASH
+$  source ~/.bash_profile
+
+# ZSH
+$ source ~/.zshrc
+
+```
+
+5. Clone this project 
 
 ```bash
 $ git clone https://github.com/quophyie/quantalex-infra.git .
@@ -27,7 +47,7 @@ $ cd quantalex-infra
 
 ```
 
-4. Run bin/setup
+6. Run bin/setup
 
 ```bash
 $ cd scripts/infra
@@ -44,14 +64,23 @@ of `Quantal Infrastructure` project `script-infra` directory (i.e. **`myproject/
 
 You may be required to source a few files to complete the environment variable setup
 
-5. Source **``~/.zshrc``** if you are using `ZSH` or source **``~/.bash_profile``** if you are using
+7. Source **``~/.zshrc``** if you are using `ZSH` or source **``~/.bash_profile``** if you are using
 **`bash`** as your shell
 
-6. Source any files that the setup script instructs you to do
+```bash
+# BASH
+$  source ~/.bash_profile
+
+# ZSH
+$ source ~/.zshrc
+
+```
+
+8. Source any files that the setup script instructs you to do
 
 
 
-7. Test that all setup has worked correctly, run the infrastructure with the following alias
+9. Test that all setup has worked correctly, run the infrastructure with the following alias
 
 ```bash
 $ run_quantal_infra
