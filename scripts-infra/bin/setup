@@ -31,5 +31,4 @@ echo "!!! PLEASE COPY AND RUN COMMAND BELOW TO COMPLETE SETUP !!!"
 echo ""
 echo "source ${PROFILE_FILE}"
 printf "\n\n"
-
 # main
