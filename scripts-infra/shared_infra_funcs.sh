@@ -12,7 +12,7 @@ function check_and_exit_if_infra_scripts_root_env_var_not_exist() {
         local setUpScriptDir
         # Get the shell executing the script
         local shell
-        get_shell shell
+        get_sub_shell shell
 
         if [[  "${shell}" = "bash" ]]; then
 
@@ -46,7 +46,7 @@ function configure_infra_scripts_dir_env_var() {
 
     # Get the shell executing the script
      local shell
-     get_shell shell
+     get_sub_shell shell
 
      if [[  "${shell}" = "bash" ]]; then
          # see https://stackoverflow.com/questions/59895/how-to-get-the-source-directory-of-a-bash-script-from-within-the-script-itself
@@ -112,18 +112,27 @@ function update_profile_with_aliases_source() {
 
     local source_line_to_add="source ${INFRA_SCRIPTS_ROOT}/setup_aliases.sh"
     local comment="# Source Quantal Infra aliases"
+    local quantal_shared_scripts_escaped_path_pattern=$(echo ${QUANTAL_SHARED_SCRIPTS_DIR} | sed -e 's|/|\\/|g')
+    local quantal_shared_scripts_line_to_insert_infra_scripts_dir_var_after="export QUANTAL_SHARED_SCRIPTS_DIR=${quantal_shared_scripts_escaped_path_pattern}"
     local line_to_insert_source_line_after="source ~\/.bash_profile"
-    local infra_scripts_dir_env_var="INFRA_SCRIPTS_ROOT="${INFRA_SCRIPTS_ROOT}""
+    local infra_scripts_dir_env_var="export INFRA_SCRIPTS_ROOT="${INFRA_SCRIPTS_ROOT}""
     local infra_scripts_escaped_path=$(echo ${INFRA_SCRIPTS_ROOT} | sed -e 's|/|\\/|g')
    # local infra_scripts_dir_env_var_pattern=INFRA_SCRIPTS_ROOT=${INFRA_SCRIPTS_ROOT}
-    local infra_scripts_dir_env_var_pattern="INFRA_SCRIPTS_ROOT=${infra_scripts_escaped_path}"
+    local infra_scripts_dir_env_var_pattern="export INFRA_SCRIPTS_ROOT=${infra_scripts_escaped_path}"
 
      if ! grep -q "${source_line_to_add}" "${profile}"; then
 
       # update profile
     echo "updating profile with command '${source_line_to_add}'"
 
-        if grep -q "${line_to_insert_source_line_after}" "${profile}"; then
+        if grep -q "${quantal_shared_scripts_line_to_insert_infra_scripts_dir_var_after}" "${profile}"; then
+              # Insert alias sourcing command after the source bash_profile line in ${PROFILE} file
+           # Note that this is done in reverse order
+            insert_after ${profile} "${quantal_shared_scripts_line_to_insert_infra_scripts_dir_var_after}" "${comment}"
+            insert_after ${profile} "${comment}" "${infra_scripts_dir_env_var}"
+            insert_after ${profile} "${infra_scripts_dir_env_var_pattern}" "${source_line_to_add}"
+
+        elif grep -q "${line_to_insert_source_line_after}" "${profile}"; then
            # Insert alias sourcing command after the source bash_profile line in ${PROFILE} file
            # Note that this is done in reverse order
             insert_after ${profile} "${line_to_insert_source_line_after}" "${comment}"
@@ -152,7 +161,7 @@ get_profile_file() {
     local shell
 
     # Get the shell running the script
-    get_shell shell
+    get_sub_shell shell
 
     if [[ "${SHELL}" = "/bin/zsh" ]]; then
 
@@ -176,7 +185,7 @@ get_profile_file() {
 #            be set by this function to the name of the shell executing the script
 #
 
-function get_shell(){
+function get_sub_shell(){
 
     local  __resultvar=$1
     local profileShell
@@ -208,15 +217,21 @@ function check_quantal_shared_scripts_dir_exists() {
  # for bash shells
  local shell
  local projectDir
+ local quantalInfraSetupScriptDir
+ local profileFile
 
 # Get the shell executing the script
- get_shell shell
+ get_sub_shell shell
+
+ get_profile_file profileFile
 
  if [[  "${shell}" = "bash" ]]; then
      projectDir="$( cd "$(dirname "${BASH_SOURCE[0]}")"/../.. >/dev/null 2>&1 ; pwd -P )"
+     quantalInfraSetupScriptDir="$( cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 ; pwd -P )"
 
  elif [[ "${shell}" = "zsh"  ]]; then
      projectDir="$( cd "$(dirname "${funcfiletrace[1]}")"/../.. >/dev/null 2>&1 ; pwd -P )"
+     quantalInfraSetupScriptDir="$( cd "$(dirname "${funcfiletrace[1]}")" >/dev/null 2>&1 ; pwd -P )"
  fi
 
 local quantalSharedScriptsDir="${projectDir}/scripts"
@@ -230,6 +245,17 @@ local quantalSharedScriptsDir="${projectDir}/scripts"
     printf "\n\n git clone https://github.com/quophyie/scripts.git ${quantalSharedScriptsDir} \n\n"
 
     return 1
+ elif  [[ -d ${quantalSharedScriptsDir} && -z ${QUANTAL_SHARED_SCRIPTS_DIR} ]]; then
+
+   printf "\n environment variable QUANTAL_SHARED_SCRIPTS_DIR not found!! \n"
+   printf "\n please copy and run the commands below MANUALLY to configure the environment variable QUANTAL_SHARED_SCRIPTS_DIR to complete setup \n\n"
+   printf "***************************\n\n"
+   printf "1. ${quantalSharedScriptsDir}/bin/setup \n\n"
+   printf "2. source ${profileFile} \n\n"
+   printf "3. ${quantalInfraSetupScriptDir}/bin/setup \n\n"
+   printf "4. source ${profileFile} \n\n"
+   return 1
+
  fi
 
 }
