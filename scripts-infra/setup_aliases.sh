@@ -11,7 +11,7 @@ INFRA_SHARED_FUNCS="${INFRA_SHARED_FUNCS_DIR}/shared_infra_funcs.sh"
 # check_quantal_shared_scripts_dir_exists is defined in shared_infra_funcs.sh
 # check_and_exit_if_infra_scripts_root_env_var_not_exist is defined in shared_infra_funcs.sh
 
-set -e
+# set -e
 # Naive try catch
 {
  source ${INFRA_SHARED_FUNCS}
@@ -98,9 +98,38 @@ function configure_aliases() {
     create_alias build_quantal_ms_and_infra '${INFRA_SCRIPTS_ROOT}/build_and_run_all_services_docker.sh'
 }
 
+
+function print_post_alias_config_messages() {
+
+local isThisScriptSourcedBeingByProfileFile=
+# is_sourced_by_shell_init_profile_config_file is defined in  ${INFRA_SCRIPTS_ROOT}/../../scripts/config/config_env_file.sh
+# get_profile_file is defined in  ${INFRA_SCRIPTS_ROOT}/../../scripts/config/config_env_file.sh
+
+is_sourced_by_shell_init_profile_config_file isThisScriptSourcedBeingByProfileFile
+
+if [[ ${isThisScriptSourcedBeingByProfileFile} = "false" ]]; then
+    PROFILE_FILE=
+    get_profile_file PROFILE_FILE
+
+    printf "\n\n"
+    echo "Please source file ${PROFILE_FILE} to complete the setup"
+    echo ""
+    echo "*****************************"
+    echo "!!! PLEASE COPY AND RUN COMMAND BELOW TO COMPLETE SETUP !!!"
+    echo ""
+    echo "source ${PROFILE_FILE}"
+    printf "\n\n"
+fi
+
+}
 configure_aliases
 update_profile_with_aliases_source
 #source_profiles
 echo "finished setting up aliases"
+
+source ${QUANTAL_SHARED_SCRIPTS_DIR}/shared/funcs.sh
+
+print_post_alias_config_messages
+
 
 

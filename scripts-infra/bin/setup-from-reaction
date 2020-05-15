@@ -60,8 +60,4 @@ function add_new_env_vars() {
     }
 }
 
-source ./../../scripts/config/config_env_file.sh
-create_env_file "/u01/projects/quantal/quantalex-infra/scripts-infra" "test.txt"
-export_env_vars_in_env_file "/u01/projects/quantal/quantalex-infra/scripts-infra" "test2.txt"
-
 # main
