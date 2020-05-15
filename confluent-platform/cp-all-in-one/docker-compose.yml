@@ -1,5 +1,5 @@
 ---
-version: '3.7'
+version: '3.8'
 services:
   zookeeper:
     image: ${REPOSITORY}/cp-zookeeper:${CONFLUENT_DOCKER_TAG}

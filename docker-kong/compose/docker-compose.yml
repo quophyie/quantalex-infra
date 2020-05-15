@@ -2,14 +2,15 @@
 #              Docker Compose file that starts Kong              #
 ##################################################################
 
-version: '3.7'
+version: '3.8'
 
 volumes:
   kong_data: {}
 
 networks:
-  container_services_networks:
-    driver: bridge
+  default:
+    external:
+      name: container_services_networks
 
 services:
   kong-migrations:
