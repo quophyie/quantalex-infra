@@ -24,6 +24,7 @@ INFRA_SHARED_FUNCS="${INFRA_SHARED_FUNCS_DIR}/shared_infra_funcs.sh"
 }
 
 KONG_DOCKER_COMPOSE_SCRIPTS_ROOT=${INFRA_SCRIPTS_ROOT}/../docker-kong/compose
+ELASTICSEARCH_DOCKER_COMPOSE_DIR=${INFRA_SCRIPTS_ROOT}/../docker-elasticsearch/compose
 CONFLUENT_PLATFORM_ALL_IN_ONE_DIR=${INFRA_SCRIPTS_ROOT}/../confluent-platform/cp-all-in-one
 
 # source the confluent env file
@@ -32,7 +33,9 @@ if [[  -d ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR} ]] && [[ -f "${CONFLUENT_PLATFORM
     source ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/.env
 fi
 
-SHARED_SERVICES_DOCKER_COMPOSE_COMMAND="docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml -f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml"
+SHARED_SERVICES_DOCKER_COMPOSE_COMMAND="docker-compose -f ${KONG_DOCKER_COMPOSE_SCRIPTS_ROOT}/docker-compose.yml \
+-f ${CONFLUENT_PLATFORM_ALL_IN_ONE_DIR}/docker-compose.yml \
+-f ${ELASTICSEARCH_DOCKER_COMPOSE_DIR}/docker-compose.yml "
 
 QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT="${INFRA_SCRIPTS_ROOT}/../../"
 declare -a QUANTAL_MS_DOCKER_COMPOSE_DIRS=("${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_ROOT}quantalex-users"
@@ -46,7 +49,7 @@ declare -a QUANTAL_MS_DOCKER_COMPOSE_DIRS=("${QUANTAL_MS_DOCKER_COMPOSE_SCRIPTS_
 
 function exec_shared_services_docker_compose_command() {
     # $@ represents the args that were passed to the function
-    local command="${SHARED_SERVICES_DOCKER_COMPOSE_COMMAND} $@"
+    local command="${SHARED_SERVICES_DOCKER_COMPOSE_COMMAND} $@ "
     echo "Running command ${command}"
     eval ${command}
 }
