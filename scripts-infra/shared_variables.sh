@@ -9,7 +9,7 @@ INFRA_SHARED_FUNCS="${INFRA_SHARED_FUNCS_DIR}/shared_infra_funcs.sh"
 # check_and_exit_if_infra_scripts_root_env_var_not_exist is defined in shared_infra_funcs.sh
 # INFRA_SCRIPTS_ROOT will be set up when bin/setup is run
 
-set -e
+# set -e
 # Naive try catch
 {
  source ${INFRA_SHARED_FUNCS}
