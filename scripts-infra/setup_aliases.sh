@@ -66,9 +66,10 @@ function create_alias() {
 
         # Shift one here cos the 1st arg is the alias name of this alias func and we cant pass that
         # to docker-compose
-        shift 1;
+        # shift 1;
         # get the args that were passed to the alias and pass them as args to the alias function file
-        local args=$@
+        local args="$@"
+        # echo "internalAliasFunctionName -> '${internalAliasFunctionName}' args -> ${args}"
         source "'${fileName}'" ${args} & go_to_orig_dir;
         unset -f '${internalAliasFunctionName}';
     };
