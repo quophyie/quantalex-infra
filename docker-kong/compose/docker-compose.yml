@@ -2,7 +2,7 @@
 #              Docker Compose file that starts Kong              #
 ##################################################################
 
-version: '3.8'
+version: '3.7'
 
 volumes:
   kong_data: {}
