@@ -59,6 +59,21 @@ services:
       - elastic
       - container_services_networks
 
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.7.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - SERVER_NAME=quantal.kibana
+      - ELASTICSEARCH_HOSTS=["http://es01:9200","http://es02:9200","http://es02:9200"]
+
+    volumes:
+    - kibana01:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+      - container_services_networks
+
 volumes:
   data01:
     driver: local
@@ -66,6 +81,9 @@ volumes:
     driver: local
   data03:
     driver: local
+  kibana01:
+    driver: local
+
 
 #networks:
 #  elastic:
