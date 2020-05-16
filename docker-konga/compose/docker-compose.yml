@@ -24,6 +24,7 @@ services:
     - konga-db
     networks:
       - container_services_networks
+  # use docker to run the migrations command
   # docker run --network compose_container_services_networks --rm pantsel/konga:latest -c prepare -a postgres -u postgresql://konga:konga@konga-db:5432/konga
   konga-migrations:
     image:  pantsel/konga:latest
