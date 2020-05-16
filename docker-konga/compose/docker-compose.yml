@@ -1,0 +1,85 @@
+version: '3.7'
+
+services:
+  konga:
+    image: pantsel/konga:latest
+    container_name: konga
+    ports:
+      - "1337:1337"
+    environment:
+      PORT: 1337
+      NODE_ENV: production  #or 'development' | defaults to 'development'
+      KONGA_HOOK_TIMEOUT: 120000
+      DB_ADAPTER: postgres
+      DB_URI: postgresql://konga:konga@konga-db:5432/konga
+      KONGA_LOG_LEVEL: warn
+#      TOKEN_SECRET: some_secret_token
+#      DB_HOST: konga-db
+#      DB_PORT: 5432
+#      DB_USER: konga
+#      DB_PASSWORD: konga
+#      DB_DATABASE: konga
+#      DB_PG_SCHEMA: my-schema # // Optionally define a schema when integrating with prostgres
+    depends_on:
+    - konga-db
+    networks:
+      - container_services_networks
+  # docker run --network compose_container_services_networks --rm pantsel/konga:latest -c prepare -a postgres -u postgresql://konga:konga@konga-db:5432/konga
+  konga-migrations:
+    image:  pantsel/konga:latest
+    command: "-c prepare -a postgres -u postgresql://konga:konga@konga-db:5432/konga"
+    # command: "-c prepare -a postgres -u postgresql://${DB_USER}:${DB_PASSWORD}@${DB_DATABASE}:${DB_PORT}/konga"
+    container_name: "konga-migrations"
+    depends_on:
+    - konga-db
+    environment:
+      TOKEN_SECRET: some_secret_token
+      DB_ADAPTER: postgres
+      DB_HOST: konga-db
+      DB_PORT: 5432
+      DB_USER: konga
+      DB_PASSWORD: konga
+      DB_DATABASE: konga
+#      KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+#    secrets:
+#    - kong_postgres_password
+    networks:
+    - container_services_networks
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  konga-db:
+    image: postgres:9.5
+    container_name: konga-db
+    environment:
+      POSTGRES_DB: ${KONGA_PG_DATABASE:-konga}
+      POSTGRES_USER: ${KONGA_PG_USER:-konga}
+      POSTGRES_PASSWORD: ${KONGA_PG_PASSWORD:-konga}
+      # POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
+#    secrets:
+#    - kong_postgres_password
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-konga}"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+    stdin_open: true
+    tty: true
+    networks:
+    - container_services_networks
+    volumes:
+    - konga_data:/var/lib/postgresql/data
+
+volumes:
+  konga_data: {}
+
+networks:
+  default:
+    external:
+      name: container_services_networks
