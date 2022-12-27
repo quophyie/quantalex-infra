@@ -6,3 +6,9 @@ kubeAPI: # same as `--api-port myhost.my.domain:6445` (where the name would reso
   #host: "ubuntu2204" # important for the `server` setting in the kubeconfig
   hostIP: "192.168.0.170" # where the Kubernetes API will be listening on
   hostPort: "6445"
+ports:
+  - port: 30000-31000:30000-31000 # same as `--port '8080:80@loadbalancer'`
+    nodeFilters:
+      #- loadbalancer
+      - server:0
+      # - agent:*
