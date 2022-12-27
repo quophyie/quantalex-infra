@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quantal-car-garage-deployment
+  labels:
+    app: quantal-car-garage-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quantal-car-garage-ms
+  template:
+    metadata:
+      labels:
+        app: quantal-car-garage
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
