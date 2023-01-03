@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: quantal-car-garage-users-svc
+  labels:
+    app: quantal-car-garage-users
+  namespace: quantal-dev
+spec:
+  selector:
+    app: quantal-car-garage-users
+  type: NodePort
+  ports:
+    - name: quantal-car-garage-users-port
+      nodePort: 30001
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quantal-car-garage-users-deployment
+  namespace: quantal-dev
+  labels:
+    app: quantal-car-garage-users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quantal-car-garage-users
+  template:
+    metadata:
+      labels:
+        app: quantal-car-garage-users
+    spec:
+      containers:
+      - name: quantal-car-garage-users
+        image: quophyie/quantal-car-garage-users:latest
+        ports:
+        - containerPort: 80
+        env:
+          - name: HOST_IP
+            value: kafka-svc.quantal-dev
