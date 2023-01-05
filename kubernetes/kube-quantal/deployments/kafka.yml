@@ -46,8 +46,24 @@ spec:
           value: PLAINTEXT://:9092
         - name: KAFKA_ADVERTISED_LISTENERS
           value: PLAINTEXT://kafka-svc.quantal-dev:9092
+        - name: KAFKA_LOG_DIRS
+          value: "/var/lib/kafka/data"
+        - name: KAFKA_CREATE_TOPICS
+          value: "car-garage-users:2:1,car-garage-vehicles:2:1"
         image: wurstmeister/kafka
         imagePullPolicy: IfNotPresent
         name: kafka-broker
         ports:
         - containerPort: 9092
+        volumeMounts:
+          - name: kafka-logs-volume
+            mountPath: "/kafka/kafka-logs"
+          - name: kafka-data-volume
+            mountPath: "/var/lib/kafka/data"
+      volumes:
+      - name: kafka-logs-volume
+        persistentVolumeClaim:
+          claimName: kafka-logs-local-path-pvc
+      - name: kafka-data-volume
+        persistentVolumeClaim:
+          claimName: kafka-data-local-path-pvc
