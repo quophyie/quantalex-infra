@@ -25,3 +25,18 @@ spec:
   resources:
     requests:
       storage: 800M
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data-local-path-pvc
+  namespace: quantal-dev
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1G
