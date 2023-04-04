@@ -41,7 +41,9 @@ spec:
         - name: KAFKA_CLUSTERS_0_NAME
           value: "K8 Kafka Cluster"
         - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
-          value: kafka-svc.quantal-dev:9092
+          value: kafka-svc-internal.quantal-dev:9092
+#        - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+#          value: ubuntu2204.homelan.com:30003
         imagePullPolicy: Always
         resources:
           requests:
