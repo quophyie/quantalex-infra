@@ -39,4 +39,4 @@ spec:
         - containerPort: 80
         env:
           - name: HOST_IP
-            value: kafka-svc.quantal-dev
+            value: kafka-svc-internal.quantal-dev
