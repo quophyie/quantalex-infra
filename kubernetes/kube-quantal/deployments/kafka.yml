@@ -76,6 +76,21 @@ spec:
             value: "car-garage-users:2:1,car-garage-vehicles:2:1"
         image: wurstmeister/kafka
         imagePullPolicy: IfNotPresent
+        command: [ "/bin/sh", "-c" ]
+        args:
+          - ls -al /kafka &&
+            ls -al /opt/kafka_2.13-2.8.1 &&
+            ls -al /kafka/kafka-logs &&
+            find / -type f -name meta.properties &&
+            find / -type f -name server.properties &&
+            find / -type f -name start-kafka.sh &&
+            if [ -f "/var/lib/kafka/data/meta.properties" ]; then 
+                echo "Found /var/lib/kafka/data/meta.properties !!" &&
+                cat /var/lib/kafka/data/meta.properties && 
+                rm -vf /var/lib/kafka/data/meta.properties ;
+            fi && 
+            cd /opt/kafka_2.13-2.8.1 && 
+            /usr/bin/start-kafka.sh
         ports:
         - containerPort: 9092
         volumeMounts:
