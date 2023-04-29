@@ -17,13 +17,13 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: kafka-broker
-  name: kafka-svc-external
+    app: kafka-broker-port-external-svc
+  name: kafka-node-port-external-svc
   namespace: quantal-dev
 spec:
   type: NodePort
   ports:
-    - name: kafka-broker-external
+    - name: kafka-broker-external-node-port
       port: 9092
       nodePort: 30003
       protocol: TCP
@@ -31,6 +31,24 @@ spec:
   selector:
     app: kafka-broker
 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: kafka-broker-node-port-external-ip-svc
+  name: kafka-broker-node-port-external-ip-svc
+  namespace: quantal-dev
+spec:
+  type: NodePort
+  ports:
+    - name: kafka-broker-external-ip-node-port
+      port: 9092
+      nodePort: 30010
+      protocol: TCP
+      targetPort: 30010
+  selector:
+    app: kafka-broker
 ---
 
 apiVersion: apps/v1
@@ -63,34 +81,118 @@ spec:
   #        - name: KAFKA_ADVERTISED_PORT
   #          value: "30003"
           - name: KAFKA_LISTENERS
-            value: EXTERNAL://:30003,INTERNAL://:9092
+            value: EXTERNAL://:30003,EXTERNAL_IP://:30010,INTERNAL://:9092
           - name: KAFKA_ADVERTISED_LISTENERS
-            value: "EXTERNAL://ubuntu2204.homelan.com:30003,INTERNAL://kafka-svc-internal.quantal-dev:9092"
+            value: "EXTERNAL://ubuntu2204.homelan.com:30003,EXTERNAL_IP://192.168.0.170:30010,INTERNAL://kafka-svc-internal.quantal-dev:9092"
           - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-            value: "EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT"
+            value: "EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL_IP:PLAINTEXT"
           - name: KAFKA_INTER_BROKER_LISTENER_NAME
             value: "INTERNAL"
           - name: KAFKA_LOG_DIRS
             value: "/var/lib/kafka/data"
+          - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+            value: "1"
+          # For confluentinc/cp-kafka to auto create topics
+          - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
+            value: "true"
+          # For wurstmeister/kafka to auto create topics
           - name: KAFKA_CREATE_TOPICS
             value: "car-garage-users:2:1,car-garage-vehicles:2:1"
-        image: wurstmeister/kafka
+
+        #image: wurstmeister/kafka
+        image: confluentinc/cp-kafka:7.3.3
+        #image: quophyie/cp-kafka:7.3.3
         imagePullPolicy: IfNotPresent
-        command: [ "/bin/sh", "-c" ]
+#        lifecycle:
+#          postStart:
+#            exec:
+#              command:
+#                - "/bin/sh"
+#                - "-c"
+#                - >
+#                    ls -alR /kafka/kafka-logs
+#                    && ls -alR /kafka
+#                    && find / -type f -name meta.properties
+#                    && find / -type f -name server.properties
+#                    && find / -type f -name start-kafka.sh &&
+#                    if [ -f "/var/lib/kafka/data/meta.properties" ]; then
+#                      echo "Found /var/lib/kafka/data/meta.properties !!" &&
+#                      cat /var/lib/kafka/data/meta.properties &&
+#                      rm -vf /var/lib/kafka/data/meta.properties ;
+#                      rm -rvf /kafka/kafka-logs
+#                    else
+#                     echo "meta.properties NOT FOUND!";
+#                    fi
+#                    sleep 90
+#                    && kafka-topics --bootstrap-server localhost:9092 --list
+#                    && echo -e 'Creating kafka topics'
+#                    && kafka-topics --create --if-not-exists --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 --topic car-garage-users
+#                    && kafka-topics --create --if-not-exists --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 --topic car-garage-vehicles
+#                    && echo -e 'Successfully created the following topics:'
+#                    && kafka-topics --bootstrap-server localhost:9092 --list
+
+        command: [ "/bin/bash", "-c" ]
         args:
-          - ls -al /kafka &&
-            ls -al /opt/kafka_2.13-2.8.1 &&
-            ls -al /kafka/kafka-logs &&
-            find / -type f -name meta.properties &&
-            find / -type f -name server.properties &&
-            find / -type f -name start-kafka.sh &&
-            if [ -f "/var/lib/kafka/data/meta.properties" ]; then 
+          - ls -alR /kafka/kafka-logs
+            
+              if [ -f "/var/lib/kafka/data/meta.properties" ]; then
                 echo "Found /var/lib/kafka/data/meta.properties !!" &&
-                cat /var/lib/kafka/data/meta.properties && 
+                cat /var/lib/kafka/data/meta.properties &&
                 rm -vf /var/lib/kafka/data/meta.properties ;
-            fi && 
-            cd /opt/kafka_2.13-2.8.1 && 
-            /usr/bin/start-kafka.sh
+              else
+                echo "meta.properties NOT FOUND!";
+              fi
+            
+              echo /usr/bin/start-kafka.sh;
+              /etc/confluent/docker/run
+              & pid=$!          
+              && wait ${pid}
+
+#              && sleep 90
+#              && kafka-topics --bootstrap-server localhost:9092 --list
+#              && echo -e 'Creating kafka topics'
+#              && kafka-topics --create --if-not-exists --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 --topic car-garage-users
+#              && kafka-topics --create --if-not-exists --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 --topic car-garage-vehicles
+#              && echo -e 'Successfully created the following topics:'
+#              && kafka-topics --bootstrap-server localhost:9092 --list
+#              && jobs
+#              && wait ${pid}
+#              && kafka-topics --bootstrap-server localhost:9092 --list
+#              && jobs
+#              && set -m
+#              &&
+#              while true; do var=11; sleep 1; done
+#              && echo ""
+
+        #          - ls -alR /kafka/kafka-logs
+#            && rm -Rvf /kafka/kafka-logs/*
+#            && rm -Rvf /var/lib/kafka/data/*
+#            && /etc/confluent/docker/run
+#            && ls -alR /kafka
+#            && find / -type f -name meta.properties
+#            && find / -type f -name server.properties
+#            && find / -type f -name run
+#            && cat /etc/kafka/server.properties
+#        && ls -al /kafka/kafka-logs/ &&
+#            whoami &&
+#            su &&
+#            yum -y install findutils &&
+#            find / -type f -name meta.properties &&
+#            find / -type f -name server.properties &&
+#            find / -type f -name start-kafka.sh &&
+#            if [ -f "/var/lib/kafka/data/meta.properties" ]; then
+#                echo "Found /var/lib/kafka/data/meta.properties !!" &&
+#                cat /var/lib/kafka/data/meta.properties &&
+#                rm -vf /var/lib/kafka/data/meta.properties ;
+#            fi
+#
+#            cat /etc/confluent/docker/run &&
+#            cat /etc/confluent/docker/launch &&
+        #            ls -al /opt/kafka_2.13-2.8.1 &&
+        #            ls -al /kafka/kafka-logs &&
+#            &&
+#            cd /opt/kafka_2.13-2.8.1 &&
+#            /usr/bin/start-kafka.sh
         ports:
         - containerPort: 9092
         volumeMounts:
@@ -98,6 +200,11 @@ spec:
             mountPath: "/kafka/kafka-logs"
           - name: kafka-data-volume
             mountPath: "/var/lib/kafka/data"
+        resources:
+          requests:
+            memory: "1024Mi"
+          limits:
+            memory: "1024Mi"
       volumes:
         - name: kafka-logs-volume
           persistentVolumeClaim:
@@ -105,3 +212,4 @@ spec:
         - name: kafka-data-volume
           persistentVolumeClaim:
             claimName: kafka-data-local-path-pvc
+
