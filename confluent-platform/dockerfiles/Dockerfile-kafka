@@ -1,0 +1,20 @@
+FROM confluentinc/cp-kafka:7.3.3
+
+USER root
+
+RUN yum -y install findutils \
+    && yum -y install lsof \
+    && yum -y install net-tools
+
+RUN yum update -y \
+    && subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms \
+    && yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
+    && yum group install -y "Development Tools" \
+    && yum install -y git cyrus-sasl-devel cmake libcurl-devel
+
+RUN git clone https://github.com/edenhill/kafkacat.git && \
+    cd kafkacat/ && \
+    ./bootstrap.sh && \
+    ./kafkacat -h \
+    && cd /usr/bin \
+    && ln -s /kafkacat/kafkacat kafkacat
