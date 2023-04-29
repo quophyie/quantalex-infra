@@ -9,7 +9,7 @@ spec:
   storageClassName: local-path
   resources:
     requests:
-      storage: 600M
+      storage: 2G
 
 ---
 
@@ -24,7 +24,7 @@ spec:
   storageClassName: local-path
   resources:
     requests:
-      storage: 800M
+      storage: 2G
 
 ---
 
@@ -39,4 +39,4 @@ spec:
   storageClassName: local-path
   resources:
     requests:
-      storage: 1G
+      storage: 2G
