@@ -36,7 +36,7 @@ spec:
       - name: quantal-car-garage-vehicles
         image: quophyie/quantal-car-garage-vehicles:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         env:
           - name: HOST_IP
             value: kafka-svc-internal.quantal-dev

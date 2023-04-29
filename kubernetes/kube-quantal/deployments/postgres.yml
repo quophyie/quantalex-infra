@@ -6,13 +6,9 @@ metadata:
   name: postgres-svc-internal
   namespace: quantal-dev
 spec:
-  type: NodePort
   ports:
-    - name: postgres
+    - name: postgres-svc-internal
       port: 5432
-      nodePort: 30005
-      protocol: TCP
-      targetPort: 5432
   selector:
     app: postgres
 
@@ -29,7 +25,7 @@ spec:
   ports:
     - name: postgres-default-port
       port: 5432
-      nodePort: 30004
+      nodePort: 30005
       protocol: TCP
       targetPort: 5432
   selector:
